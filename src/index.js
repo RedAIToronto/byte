@@ -3,14 +3,23 @@ const path = require('path');
 const dotenv = require('dotenv');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const SocketManager = require('./services/socket-manager');
 const tokenRoutes = require('./routes/token.routes');
+const resourceRoutes = require('./routes/resource.routes');
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.NODE_ENV === 'development' ? '*' : process.env.ALLOWED_ORIGINS
+    }
+});
+
+// Initialize socket manager
+const socketManager = new SocketManager(io);
 
 // Middleware
 app.use(express.json());
@@ -18,42 +27,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/token', tokenRoutes);
+app.use('/api/resources', resourceRoutes);
 
 // Socket.IO connection handling
-io.on('connection', (socket) => {
-    console.log('Client connected');
-    
-    // Emit initial market stats
-    socket.emit('market-stats', {
-        activeProviders: 42,
-        availableGPUs: 156,
-        averageCost: 0.45
-    });
-
-    // Handle resource updates
-    socket.on('request-resources', () => {
-        // Emit available resources periodically
-        socket.emit('available-resources', [
-            {
-                _id: 'gpu_001',
-                resourceType: 'NVIDIA GPU',
-                metadata: {
-                    gpuModel: 'RTX 4090',
-                    vramSize: 24,
-                    cudaCores: 16384
-                },
-                pricePerUnit: 0.45
-            }
-            // Add more realistic resource examples
-        ]);
-    });
-});
-
-// Basic error handling
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
+io.on('connection', (socket) => socketManager.handleConnection(socket));
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
