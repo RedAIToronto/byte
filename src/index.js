@@ -3,6 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const tokenRoutes = require('./routes/token.routes');
 
 // Load environment variables
 dotenv.config();
@@ -14,6 +15,9 @@ const io = new Server(httpServer);
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Routes
+app.use('/api/token', tokenRoutes);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {

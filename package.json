@@ -1,12 +1,17 @@
 {
+  "name": "byte",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
   "dependencies": {
     "@solana/web3.js": "^1.87.6",
     "@solana/spl-token": "^0.3.8",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "mongoose": "^8.8.3",
-    "socket.io": "^4.8.1",
-    "web3": "^1.9.0"
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
