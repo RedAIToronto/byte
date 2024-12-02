@@ -1,0 +1,7 @@
+mkdir BYTE
+cd BYTE
+npm init -y 
+npm install
+npm install ejs express-ejs-layouts
+mkdir -p src/views/layouts src/public/{css,js}
+npm run dev
